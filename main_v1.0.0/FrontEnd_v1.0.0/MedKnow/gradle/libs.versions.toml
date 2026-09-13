@@ -1,0 +1,136 @@
+[versions]
+# Kotlin 和工具链
+kotlin = "2.0.21"
+agp = "8.7.2"
+
+# 核心 Android
+core-ktx = "1.12.0"
+activity-compose  = "1.8.2"
+
+# Compose（BOM版本）
+compose-bom = "2024.09.00"
+
+# 生命周期
+lifecycle = "2.7.0"
+
+# 协程
+coroutines = "1.7.3"
+
+# 网络
+retrofit = "2.9.0"
+okhttp-logging = "4.12.0"
+
+# 测试
+junit = "4.13.2"
+kotlinxCoroutinesTest = "1.7.3"
+turbine = "1.1.0"
+
+# Hilt
+hilt = "2.51.1"
+ksp = "2.0.21-1.0.28"
+
+# desugaring
+desugar-jdk-libs = "2.0.4"
+
+# 高德地图
+amap = "11.2.100"
+amap-location = "11.2.100"
+amap-search = "9.8.1"
+
+# Navigation Compose
+navigationCompose = "2.8.5"
+
+# DataStore
+datastore = "1.1.1"
+
+# mockK
+mockk = "1.13.12"
+
+# Mockito
+mockito = "5.12.0"
+
+[libraries]
+# Android 核心
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+
+#Compose
+# 声明 BOM
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+
+# 通过 BOM 管理的 Compose 库，版本号由 BOM 控制，这里不指定 version
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+
+# 生命周期
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-viewmodel-compose = {module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle"}
+lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+
+# 协程
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+
+# 网络
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp-logging" }
+
+# 测试
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+# hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version = "1.2.0" }
+
+# desugaring
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
+
+# 高德地图
+amap-map3d = { module = "com.amap.api:3dmap", version.ref = "amap" }
+amap-location = { module = "com.amap.api:location", version.ref = "amap-location" }
+amap-search = { module = "com.amap.api:search", version.ref = "amap-search"}
+
+# Navigation Compose
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+# DataStore
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+# mockK
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+# Mockito
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
+
+# 依赖组（bundles）
+[bundles]
+compose = [
+    "compose-ui",
+    "compose-material3",
+    "compose-ui-tooling-preview"
+]
+lifecycle = [
+    "lifecycle-runtime-ktx",
+    "lifecycle-viewmodel-compose",
+    "lifecycle-runtime-compose"
+]
+network = [
+    "retrofit",
+    "retrofit-converter-gson",
+    "okhttp-logging-interceptor"
+]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
