@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaozhidao.mapper.ArticleInteractionMapper">
+
+    <select id="find" resultType="com.yaozhidao.entity.ArticleInteraction">
+        SELECT id, user_id, article_id, type, created_at
+        FROM article_interaction
+        WHERE user_id = #{userId} AND article_id = #{articleId} AND type = #{type}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_interaction (user_id, article_id, type)
+        VALUES (#{userId}, #{articleId}, #{type})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM article_interaction WHERE id = #{id}
+    </delete>
+
+    <!-- 列表页批量查询互动状态，避免 N+1 -->
+    <select id="findByUserAndArticles" resultType="com.yaozhidao.entity.ArticleInteraction">
+        SELECT id, user_id, article_id, type, created_at
+        FROM article_interaction
+        WHERE user_id = #{userId} AND article_id IN
+        <foreach collection="articleIds" item="aid" open="(" separator="," close=")">
+            #{aid}
+        </foreach>
+    </select>
+
+</mapper>

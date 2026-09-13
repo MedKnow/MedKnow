@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaozhidao.mapper.ReminderMapper">
+
+    <sql id="cols">
+        id, plan_id, user_id, plan_drug_id, drug_name, scheduled_date, scheduled_time,
+        scheduled_at, status, actual_time, is_late, created_at, updated_at
+    </sql>
+
+    <!-- 批量生成提醒（激活时）；唯一键 uk_drug_time 兜底幂等 -->
+    <insert id="insertBatch">
+        INSERT INTO reminder (plan_id, user_id, plan_drug_id, drug_name, scheduled_date,
+                              scheduled_time, scheduled_at, status)
+        VALUES
+        <foreach collection="list" item="r" separator=",">
+            (#{r.planId}, #{r.userId}, #{r.planDrugId}, #{r.drugName}, #{r.scheduledDate},
+             #{r.scheduledTime}, #{r.scheduledAt}, 'PENDING')
+        </foreach>
+        ON DUPLICATE KEY UPDATE plan_id = VALUES(plan_id)
+    </insert>
+
+    <select id="countByPlanDrugAndDate" resultType="int">
+        SELECT COUNT(*) FROM reminder
+        WHERE plan_drug_id = #{planDrugId} AND scheduled_date = #{date} AND scheduled_time = #{time}
+    </select>
+
+    <select id="findById" resultType="com.yaozhidao.entity.Reminder">
+        SELECT
+        <include refid="cols"/>
+        FROM reminder WHERE id = #{id}
+    </select>
+
+    <select id="findByUserAndDate" resultType="com.yaozhidao.entity.Reminder">
+        SELECT
+        <include refid="cols"/>
+        FROM reminder
+        WHERE user_id = #{userId} AND scheduled_date = #{date}
+        ORDER BY scheduled_time
+    </select>
+
+    <select id="findByPlanAndDate" resultType="com.yaozhidao.entity.Reminder">
+        SELECT
+        <include refid="cols"/>
+        FROM reminder
+        WHERE plan_id = #{planId} AND scheduled_date = #{date}
+        ORDER BY scheduled_time
+    </select>
+
+    <!-- 打卡：WHERE status<>'TAKEN' 用影响行数防并发双打卡（第二条影响 0 行） -->
+    <update id="checkin">
+        UPDATE reminder
+        SET status = 'TAKEN', actual_time = #{actualTime}, is_late = #{isLate}
+        WHERE id = #{id} AND status &lt;&gt; 'TAKEN'
+    </update>
+
+    <!-- 懒更新①：到点 PENDING→TRIGGERED（仅所属计划 ACTIVE 才触发，暂停中不动） -->
+    <update id="triggerDueReminders">
+        UPDATE reminder r
+        SET r.status = 'TRIGGERED'
+        WHERE r.status = 'PENDING' AND r.scheduled_at &lt;= NOW()
+          AND EXISTS (SELECT 1 FROM medication_plan p WHERE p.id = r.plan_id AND p.status = 'ACTIVE')
+    </update>
+
+    <!-- 懒更新②：超过 30 分钟未处理 PENDING/TRIGGERED→EXPIRED（漏服） -->
+    <update id="expireOverdueReminders">
+        UPDATE reminder r
+        SET r.status = 'EXPIRED'
+        WHERE r.status IN ('PENDING', 'TRIGGERED')
+          AND r.scheduled_at &lt; DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+          AND EXISTS (SELECT 1 FROM medication_plan p WHERE p.id = r.plan_id AND p.status = 'ACTIVE')
+    </update>
+
+    <!-- 依从率统计：周期内 total/confirmed/missed 计数（Map 返回，别名即 key） -->
+    <select id="stats" resultType="map">
+        SELECT COUNT(*)                                                                      AS totalDoses,
+               SUM(CASE WHEN status = 'TAKEN' THEN 1 ELSE 0 END)                              AS confirmedDoses,
+               SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END)                            AS missedDoses
+        FROM reminder
+        WHERE user_id = #{userId} AND scheduled_at BETWEEN #{start} AND #{end}
+    </select>
+
+    <!-- 单计划依从率计数（列表/详情用） -->
+    <select id="statsByPlan" resultType="map">
+        SELECT COUNT(*)                        AS totalDoses,
+               SUM(CASE WHEN status = 'TAKEN' THEN 1 ELSE 0 END) AS confirmedDoses
+        FROM reminder
+        WHERE plan_id = #{planId}
+    </select>
+
+</mapper>

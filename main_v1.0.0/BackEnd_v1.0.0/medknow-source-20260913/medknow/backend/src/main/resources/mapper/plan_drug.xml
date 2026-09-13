@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaozhidao.mapper.PlanDrugMapper">
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO plan_drug (plan_id, drug_id, drug_name, dosage, frequency, take_time,
+                               take_method, dietary_restrictions, verified, dosage_risk, sort_no)
+        VALUES
+        <foreach collection="list" item="d" separator=",">
+            (#{d.planId}, #{d.drugId}, #{d.drugName}, #{d.dosage}, #{d.frequency}, #{d.takeTime},
+             #{d.takeMethod}, #{d.dietaryRestrictions}, #{d.verified}, #{d.dosageRisk}, #{d.sortNo})
+        </foreach>
+    </insert>
+
+    <select id="findByPlanId" resultType="com.yaozhidao.entity.PlanDrug">
+        SELECT id, plan_id, drug_id, drug_name, dosage, frequency, take_time,
+               take_method, dietary_restrictions, verified, dosage_risk, sort_no
+        FROM plan_drug
+        WHERE plan_id = #{planId}
+        ORDER BY sort_no, id
+    </select>
+
+    <delete id="deleteByPlanId">
+        DELETE FROM plan_drug WHERE plan_id = #{planId}
+    </delete>
+
+</mapper>

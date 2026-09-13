@@ -1,0 +1,22 @@
+# 个人本地配置模板
+#
+# 用法：把本文件复制为同目录下的 application-local.yml，按自己的环境修改。
+#      application-local.yml 已被 .gitignore 忽略，不会提交，所以可以放心写自己的密码。
+#      默认的 dev profile 会自动带上 local profile，无需额外加启动参数。
+#
+# 也可以完全不建这个文件 —— application.yml 里所有配置都有默认值，开箱即跑。
+
+spring:
+  datasource:
+    # 本机 MySQL 账号和 application.yml 默认值不同时才需要改这里
+    username: medknow
+    password: medknow123
+    # 换机器 / 换端口 / 换库名时改这行
+    # url: jdbc:mysql://localhost:3306/medknow?serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8
+
+app:
+  # 头像上传目录，默认是启动目录下的 upload/avatars
+  # upload-dir: ./upload/avatars
+  jwt:
+    # 本地想换 JWT 密钥就取消注释（至少 32 个字符）
+    # secret: your-own-local-secret-key-at-least-32-chars

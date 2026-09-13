@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaozhidao.mapper.HospitalMapper">
+
+    <sql id="cols">
+        id, name, address, phone, rating, level, longitude, latitude, introduction
+    </sql>
+
+    <!-- 推荐算法在内存计算距离与得分，种子量级直接全量加载 -->
+    <select id="findAll" resultType="com.yaozhidao.entity.Hospital">
+        SELECT
+        <include refid="cols"/>
+        FROM hospital
+    </select>
+
+    <select id="findById" resultType="com.yaozhidao.entity.Hospital">
+        SELECT
+        <include refid="cols"/>
+        FROM hospital WHERE id = #{id}
+    </select>
+
+    <select id="search" resultType="com.yaozhidao.entity.Hospital">
+        SELECT
+        <include refid="cols"/>
+        FROM hospital
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+           OR address LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY rating DESC, id
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM hospital
+        WHERE name LIKE CONCAT('%', #{keyword}, '%')
+           OR address LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+</mapper>

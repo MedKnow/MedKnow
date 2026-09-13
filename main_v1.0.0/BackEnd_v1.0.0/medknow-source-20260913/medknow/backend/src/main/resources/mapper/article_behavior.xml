@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yaozhidao.mapper.ArticleBehaviorMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_behavior (user_id, article_id, behavior_type, target)
+        VALUES (#{userId}, #{articleId}, #{behaviorType}, #{target})
+    </insert>
+
+    <!-- 用户近30天行为按权重（VIEW+1/LIKE+3/COLLECT+3/SHARE+5）聚合，返回偏好文章 id 列表 -->
+    <select id="findPreferredArticleIds" resultType="long">
+        SELECT article_id FROM (
+            SELECT article_id, SUM(weight) AS w FROM (
+                SELECT article_id,
+                       CASE behavior_type
+                           WHEN 'VIEW' THEN 1
+                           WHEN 'LIKE' THEN 3
+                           WHEN 'COLLECT' THEN 3
+                           WHEN 'SHARE' THEN 5
+                           ELSE 1
+                       END AS weight
+                FROM article_behavior
+                WHERE user_id = #{userId} AND created_at &gt;= #{since}
+            ) t
+            GROUP BY article_id
+            ORDER BY w DESC, article_id
+            LIMIT #{limit}
+        ) x
+    </select>
+
+</mapper>
